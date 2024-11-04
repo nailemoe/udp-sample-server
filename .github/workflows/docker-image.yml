@@ -1,0 +1,30 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+
+env:
+  REGION_ID: cn-shanghai
+  REGISTRY: registry.cn-shanghai.aliyuncs.com
+  NAMESPACE: sample-service
+  IMAGE: udp
+  TAG: latest
+  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: CheckOut
+      uses: actions/checkout@v4
+
+    - name: build image
+      run: docker build --tag "$REGISTRY/$NAMESPACE/$IMAGE:$TAG" .
+
+    - name: Login to ACR
+      run: docker login --username="${{ secrets.ACR_USER_NAME }}" --password "${{ secrets.ACR_PASSWORD }}" registry.cn-shanghai.aliyuncs.com
+
+    - name: Build and push image to ACR
+      run:  docker push "$REGISTRY/$NAMESPACE/$IMAGE:$TAG"
